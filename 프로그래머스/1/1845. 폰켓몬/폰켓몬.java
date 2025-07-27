@@ -2,19 +2,11 @@ import java.util.*;
 
 class Solution {
     public int solution(int[] nums) {
-        HashMap<Integer, Integer> map = new HashMap<>();
-        int choose = nums.length / 2;
+        HashSet<Integer> set = new HashSet<>();
         
-        for(Integer n : nums){
-            map.put(n, map.getOrDefault(n, 0)+1);
+        for (int n : nums){
+            set.add(n);
         }
-        
-        List<Integer> keyList = new ArrayList<>(map.keySet());
-        
-        if (keyList.size() > choose){
-            return choose;
-        } else {
-            return keyList.size();
-        }
+        return Math.min(set.size(), nums.length / 2);
     }
 }
