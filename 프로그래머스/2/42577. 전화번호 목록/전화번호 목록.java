@@ -4,14 +4,13 @@ class Solution {
     public boolean solution(String[] phone_book) {
         HashSet<String> set = new HashSet<>();
         
-        for(String p : phone_book){
-            set.add(p);
+        for (String number : phone_book){
+            set.add(number);
         }
         
-        for(String p : phone_book){
-            for(int i = 0; i < p.length(); i++){
-                String prefix = p.substring(0,i);
-                if(set.contains(prefix)){
+        for (String number : phone_book){
+            for (int i = 0; i < number.length(); i++){
+                if(set.contains(number.substring(0,i))){
                     return false;
                 }
             }
