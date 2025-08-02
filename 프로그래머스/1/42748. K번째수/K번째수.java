@@ -5,17 +5,16 @@ class Solution {
         int[] answer = new int[commands.length];
         
         for (int a = 0; a < commands.length; a++){
+            ArrayList<Integer> arr = new ArrayList<>();
             int i = commands[a][0];
             int j = commands[a][1];
             int k = commands[a][2];
             
-            ArrayList<Integer> list = new ArrayList<>();
-            
-            for (int x = i-1; x < j; x++){
-                list.add(array[x]);
+            for (int b = i-1; b < j; b++){
+                arr.add(array[b]);
             }
-            Collections.sort(list);
-            answer[a] = list.get(k-1);
+            Collections.sort(arr);
+            answer[a] = arr.get(k-1);
         }
         return answer;
     }
