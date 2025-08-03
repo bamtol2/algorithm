@@ -5,11 +5,6 @@ class Solution {
         int n = maps.length; // 행의 개수
         int m = maps[0].length; // 열의 개수
         
-        // 시작점이나 끝점이 막혀있으면 도달 불가
-        if (maps[0][0] == 0 || maps[n-1][m-1] == 0){
-            return -1;
-        }
-        
         // 방향 벡터 : 상, 하, 좌, 우
         int[] dx = {-1,1,0,0};
         int[] dy = {0,0,-1,1};
