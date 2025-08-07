@@ -3,29 +3,31 @@ class Solution {
         long left = 1;
         long right = 0;
         
+        // 가장 많이 걸리는 시간 계산
         for (long time : times){
-            if (time > right) {
+            if (right < time){
                 right = time;
             }
         }
         
-        right *= n; // 가장 오랜 시간이 걸림
+        // 검사하는데 가장 많은 시간이 걸리는 시간 * n = 최대로 많이 걸리는 시간
+        right *= n;
+        long answer = 0;
         
-        long answer = right; // 가장 큰 시간으로 초기화
-        
-        while (left <= right){
+        while(left <= right){
             long mid = (left + right) / 2;
-            
-            // mid 시간 안에 몇명을 처리 할 수 있는지 계산
             long people = 0;
+            
+            // 그 시간동안 처리할 수 있는 사람의 수
             for (long time : times){
                 people += mid / time;
             }
             
+            // 처리할 수 있는 사람수가 > 목표치(n)보다 크거나 같으면 -> 시간을 늘려줘야함
             if (people >= n){
                 answer = mid;
                 right = mid - 1;
-            } else { // 시간 과다
+            } else { // 처리할 수 있는 사람수가 > 목표치(n) 보다 작으면 -> 시간을 줄여야함
                 left = mid + 1;
             }
         }
