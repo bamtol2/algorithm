@@ -2,91 +2,98 @@ import java.util.*;
 import java.io.*;
 
 public class Main {
-	static int n,k,total;
-	static int[] movingWalk;
-	static boolean[] people;
-	
-	public static void main(String[] args) throws IOException {
+	static int N,K,totalLength,zeroCnt;
+	static int[] belt;
+	static boolean[] robot;
+	public static void main(String[] args) throws IOException{
 		BufferedReader br = new BufferedReader(new InputStreamReader(System.in));
 		StringTokenizer st = new StringTokenizer(br.readLine());
 		
-		n = Integer.parseInt(st.nextToken());
-		k = Integer.parseInt(st.nextToken());
+		N = Integer.parseInt(st.nextToken());
+		K = Integer.parseInt(st.nextToken());
+		totalLength = N * 2;
 		
-		total = n * 2;
-		
-		movingWalk = new int[total]; // 안정성 배열
-		people = new boolean[n]; // 사람이 서있는지 확인하는 배열
+		belt = new int[totalLength];
+		robot = new boolean[N];
 		
 		st = new StringTokenizer(br.readLine());
-		for (int i = 0; i < total; i++) {
-			movingWalk[i] = Integer.parseInt(st.nextToken());
+		for (int i = 0; i < totalLength; i++) {
+			belt[i] = Integer.parseInt(st.nextToken());
 		}
 		
-		int count = simulate();
-		System.out.println(count);
+		int answer = simulate();
+		System.out.println(answer);
 	}
 	
-	static int simulate() {
-		int step = 0; // 현재 진행라운드 수
-		
-		int zeroCnt = 0;
+	public static int simulate() {
+		int step = 0;
+		zeroCnt = 0;
 		
 		while(true) {
-			step += 1;
+			step++;
 			
-			// 1. 무빙워크 회전(사람이 있으면 같이 회전)
+			// 1) 벨트 회전 with 로봇
 			rotate();
 			
-			// 2. n번칸 위치에 사람이 위치하면 그 즉시 내린다
-			if(people[n-1]) people[n-1] = false;
+			// 2) 내리는 자리에 로봇이 있으면 내림
+			if (robot[N-1]) robot[N-1] = false;
 			
-			// 3. 무빙워크에 올라간 사람부터 무빙워크가 회전하는 방향으로 한 칸 이동할 수 있으면 이동
-			for (int i = n-2; i >= 0; i--) {
-				// i칸에 사람이 없으면 pass
-				if (!people[i]) continue;
-				int next = i+1;
-				// 앞선 칸에 사람이 없고, 안정성이 0보다 클 경우 앞으로 이동
-				if (!people[next] && movingWalk[next] > 0) {
-					people[i] = false;
-					movingWalk[next]--;
-					if (movingWalk[next] == 0) {
-						zeroCnt++;
-					}
-					// 이동 결과가 내리는 위치라면 즉시 내리고 표시하지않음
-					if (next == n-1) {
-						people[n-1] = false;
+			// 3) 가장 먼저 벨트위에 올라가있는 로봇부터 벨트가 회전하는 방향으로 1칸 이동
+			move();
+			
+			// 4) 첫번째 칸이 내구도 0이 아니면 새로운 로봇을 올림
+			addRobot();
+			
+			// 5) 내구도가 0인 칸의 개수가 K개 이상이면 과정 종료
+			if (zeroCnt >= K) {
+				return step;
+			}
+		}
+	}
+	
+	public static void rotate() {
+		// 1. 벨트 회전
+		int last = belt[totalLength - 1];
+		for (int i = totalLength - 1; i > 0; i--) {
+			belt[i] = belt[i-1];
+		}
+		belt[0] = last;
+		
+		// 2. 벨트 위에 로봇이 있다면 같이 회전
+		for (int i = N-2; i > 0; i-- ) {
+			robot[i] = robot[i-1];
+		}
+		robot[0] = false;
+	}
+	
+	public static void move() {
+		for (int i = N-2; i >= 0; i--) {
+			// 이동하려는 로봇이 있고
+			if (robot[i]) {
+				// 이동하려는 칸에 로봇이 없고, 그 칸의 내구도가 1 이상이면 이동
+				if (!robot[i+1] && belt[i+1] > 0) {
+					belt[i+1]--; //이동하려는 칸 내구도 1감소
+					robot[i] = false;
+					if (belt[i+1] == 0) zeroCnt++;
+					// 이동한 칸이 내리는 칸이면
+					if (i + 1 == N - 1) {
+						robot[N-1] = false;
 					} else {
-						// 이동 결과가 내리는 위치가 아니라면 사람이 있다고 표시
-						people[next] = true;
+						// 이동한 칸이 내리는 칸이 아니라면 로봇이 있다고 표시
+						robot[i+1] = true;
 					}
 				}
 			}
-			
-			// 4. 사람 올림
-			if (!people[0] && movingWalk[0] > 0) {
-				people[0] = true;
-				movingWalk[0]--;
-				if (movingWalk[0] == 0) zeroCnt++;
-			}
-			
-			// 5. 과정 종료
-			if (zeroCnt >= k) return step;
 		}
 	}
 	
-	static void rotate() {
-		// 무빙워크 회전
-		int last = movingWalk[total-1];
-		for (int i = total - 1; i > 0; i--) {
-			movingWalk[i] = movingWalk[i-1];
+	public static void addRobot() {
+		if (belt[0] > 0) {
+			robot[0] = true;
+			belt[0]--;
+			if (belt[0] == 0) {
+				zeroCnt++;
+			}
 		}
-		movingWalk[0] = last;
-		
-		// 사람이 올라가있으면 같이 회전
-		for (int i = n-1; i > 0; i--) {
-			people[i] = people[i-1];
-		}
-		people[0] = false;
 	}
 }
