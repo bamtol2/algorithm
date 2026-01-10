@@ -2,81 +2,82 @@ import java.io.*;
 import java.util.*;
 
 public class Main {
-    static int N, M, x, y, d;
-    static int[][] map;            // 0: 빈 칸, 1: 벽
-    static boolean[][] visited;    // 청소 여부
-    // d: 0 상, 1 우, 2 하, 3 좌
-    static int[] dx = {-1, 0, 1, 0};
-    static int[] dy = {0, 1, 0, -1};
+    static int N,M,r,c,d;
+    static int[] dy = {-1,0,1,0};
+    static int[] dx = {0,1,0,-1};
+    static int[][] map;
+    static boolean[][] cleaned;
 
     public static void main(String[] args) throws IOException{
         BufferedReader br = new BufferedReader(new InputStreamReader(System.in));
-        StringTokenizer st;
+        StringTokenizer st = new StringTokenizer(br.readLine());
 
-        st = new StringTokenizer(br.readLine());
         N = Integer.parseInt(st.nextToken());
         M = Integer.parseInt(st.nextToken());
 
         st = new StringTokenizer(br.readLine());
-        x = Integer.parseInt(st.nextToken());
-        y = Integer.parseInt(st.nextToken());
-        d = Integer.parseInt(st.nextToken()); // 0상 1우 2하 3좌
+
+        r = Integer.parseInt(st.nextToken());
+        c = Integer.parseInt(st.nextToken());
+        d = Integer.parseInt(st.nextToken());
 
         map = new int[N][M];
-        visited = new boolean[N][M];
+        cleaned = new boolean[N][M];
 
-        for (int i = 0; i < N; i++) {
+        for (int i = 0; i < N; i++){
             st = new StringTokenizer(br.readLine());
-            for (int j = 0; j < M; j++) {
+            for (int j = 0; j < M; j++){
                 map[i][j] = Integer.parseInt(st.nextToken());
             }
         }
 
-        int area = simulate();
-        System.out.println(area);
+        int answer = simulate(r,c,d);
+        System.out.println(answer);
     }
 
-    public static int simulate() {
-        int count = 0;
+    static int simulate(int r, int c, int d){
+        int sum = 0;
 
-        while (true) {
-            // 1. 현재 칸 청소
-            if (!visited[x][y]) {
-                visited[x][y] = true;
-                count++;
+        while(true){
+            // 1. 현재 칸이 아직 청소되지 않은 경우, 현재 칸을 청소한다
+            if (!cleaned[r][c]){
+                cleaned[r][c] = true;
+                sum ++;
             }
 
-            // 2. 주변 4칸 중 미청소 빈 칸 탐색
             boolean moved = false;
-            for (int i = 0; i < 4; i++) {
-                // 반시계 90도 회전: 상->좌, 우->상, 하->우, 좌->하
-                d = (d + 3) % 4;
-                int nx = x + dx[d];
-                int ny = y + dy[d];
 
-                // 빈 칸이면서 아직 청소하지 않은 경우 전진
-                if (map[nx][ny] == 0 && !visited[nx][ny]) {
-                    x = nx;
-                    y = ny;
+            // 2. 현재 칸 주변4칸 중 청소되지 않은 빈 칸이 있는 경우
+            for (int i = 0; i < 4; i++){
+                d = (d + 3) % 4;
+                // 바라보는 방향을 기준으로 앞쪽 칸이 청소되지 않은 빈 칸인 경우 한칸 전진
+                int ny = r + dy[d];
+                int nx = c + dx[d];
+                // 방문 안했고 청소 안했으면
+                if (!cleaned[ny][nx] && map[ny][nx] != 1){
+                    r = ny;
+                    c = nx;
                     moved = true;
-                    break; // 1번으로
+                    break;
                 }
             }
-            if (moved) continue;
 
-            // 3. 네 방향 모두 없으면 뒤로 한 칸 후진
-            int bx = x - dx[d];
-            int by = y - dy[d];
+            // 움직였으면 continue
+            if(moved) continue;
 
-            // 뒤가 벽이면 종료
-            if (map[bx][by] == 1) {
+            // 바라보는 방향을 유지한 채로 한 칸 후진할 수 있다면 한 칸을 유지하고 1번으로
+            int back = (d+2) % 4;
+            int by = r + dy[back];
+            int bx = c + dx[back];
+
+            if (map[by][bx] == 1){
                 break;
             } else {
-                x = bx;
-                y = by; // 방향은 유지
+                r = by;
+                c = bx;
             }
-        }
 
-        return count;
+        }
+        return sum;
     }
 }
