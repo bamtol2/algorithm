@@ -1,27 +1,35 @@
 class Solution {
     boolean solution(String s) {
-        boolean answer = true;
+        int length = s.length();
         
-        int open = 0;
-        
-        for (int i = 0; i < s.length(); i++){
-            char c = s.charAt(i);
-            
-            if (s.charAt(i) == '('){
-                open ++;
-            } else if (s.charAt(i) == ')'){
-                if (open == 0){
-                    return false;
-                }
-                open--;
-            }
-                
+        if(s.charAt(0) == ')'){
+            return false;
         }
         
-        if (open == 0){
+        else if (s.charAt(length-1) == '('){
+            return false;
+        }
+        
+        int leftCount = 0;
+        int rightCount = 0;
+        
+        for (int i = 0; i < length; i++){
+            if(s.charAt(i) == ')'){
+                rightCount += 1;
+            } else if (s.charAt(i) == '('){
+                leftCount += 1;
+            }
+            
+            if(rightCount > leftCount){
+                return false;
+            }
+        }
+
+        if (rightCount == leftCount){
             return true;
         } else {
             return false;
         }
+        
     }
 }
